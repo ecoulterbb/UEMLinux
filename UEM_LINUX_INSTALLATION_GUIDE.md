@@ -14,8 +14,11 @@ interactively, checkpoints each completed phase, and can be resumed from any
 interruption point.
 
 A standard all-in-one deployment installs Core, UI, and the database on a single
-host. The wizard supports **Core-only** and **UI-only** modes for distributed
-topologies (see §7).
+host. The wizard supports **Core-only** mode (UI on another host). Distributed
+UI-only install is not yet implemented — see `INSTALL_PACKAGE.md`.
+
+**Package layout:** ship `uem_install.py` and `fix_scheduler_procedures.sql`
+alongside the product tarball (`INSTALL_PACKAGE.md` lists required vs optional files).
 
 ---
 
@@ -132,6 +135,8 @@ sudo dnf install -y python3-pip
 
 ### 2.1  Launch
 
+Copy the install package to the host (see `INSTALL_PACKAGE.md`), then:
+
 ```bash
 python3 uem_install.py
 ```
@@ -159,7 +164,6 @@ python3 uem_install.py --reset  # clear all checkpoints and start over
   What would you like to install?
     1. Core + UI  — full installation on this host (most common)
     2. Core only  — database and Core on this host, UI elsewhere
-    3. UI only    — Core already running, add UI to this host
 
   Database setup:
     N. New database  — wizard creates the schema (fresh install)
