@@ -1768,23 +1768,7 @@ def _apply_db_fixes(cfg):
     conn = _db_connect(cfg)
     cur  = conn.cursor()
 
-    # 1. Fix gcs.mdm.common.cps.url if it's a template literal
-    cur.execute("""
-        SELECT id_configuration_setting, value
-        FROM obj_global_cfg_setting g
-        JOIN def_cfg_setting_dfn d ON d.id_setting_definition = g.id_setting_definition
-        WHERE d.name = 'gcs.mdm.common.cps.url'
-    """)
-    row = cur.fetchone()
     hostname = cfg.get("hostname", socket.gethostname())
-    if row:
-        if "${" in row[1] or not row[1].startswith("https://"):
-            correct_url = f"https://{hostname}/admin"
-            cur.execute("UPDATE obj_global_cfg_setting SET value=%s WHERE id_configuration_setting=%s",
-                        (correct_url, row[0]))
-            _dbg(f"Fixed gcs.mdm.common.cps.url → {correct_url}")
-        else:
-            _dbg(f"  gcs.mdm.common.cps.url OK: {row[1]}")
 
     # 2. Fix ui.port.admin — dataloader seeds it as 8008, must be 443
     cur.execute("""
@@ -1935,6 +1919,14 @@ def _apply_db_fixes(cfg):
     #       certs for idp.blackberry.com / bss.blackberry.com — a hostname mismatch
     #       against the lab URLs causes SSLPeerUnverifiedException, and the
     #       configTenants job rolls back the newly-registered tenant.
+    #
+    #    Note: on a fresh install these four settings are already correct —
+    #    contextualization writes Phase 5's gcs.bcp.singleOutbound.enabled /
+    #    gcs.com.rim.platform.network.coreToCommConnection.useTls /
+    #    gcs.cirr.service.url / gcs.bss.service.url into these (non-"gcs.")
+    #    rows (verified against the 215 reference DB). This block is retained
+    #    as a safety net for upgrades / re-contextualization runs where the
+    #    dataloader may re-seed these rows after context.sh has already run.
     cur.execute("""
         UPDATE obj_global_cfg_setting g
         SET value='true', modified=now()
@@ -2044,6 +2036,9 @@ def _apply_db_fixes(cfg):
 
     # Settings that are simply absent on a fresh deploy (INSERT if the
     # definition exists and no row is present).
+    # oidc.jwks.endpoint is also seeded via Phase 5's gcs.oidc.jwks.endpoint
+    # (verified present on the 215 reference); this INSERT is a cheap
+    # WHERE-NOT-EXISTS safety net for the row-entirely-absent case only.
     _profile_inserts = [
         ("bcp.adapter.connectionSkip", "false"),
         ("oidc.jwks.endpoint", "https://idp.blackberry.com/op/certs"),
@@ -2073,6 +2068,14 @@ def _apply_db_fixes(cfg):
     #     correct gcs.cirrpki.* values into machine.properties for a fresh
     #     deploy; this is a DB-level safety net in case those values were
     #     already overwritten by a dataloader run. See guide §20.
+    #
+    #     The 5 setting updates below are redundant on a fresh install
+    #     (contextualization writes Phase 5's gcs.cirrpki.* into these rows —
+    #     verified against the 215 reference DB) and are retained as an
+    #     upgrade/re-contextualization safety net. The cirrus_pki_rsa_root
+    #     CERTIFICATE replacement further below has NO machine.properties
+    #     equivalent (machine.properties carries CA names/URLs/thumbprints,
+    #     never cert bytes) and is the one part of item 11 that cannot move.
     _cirrpki_fixes = [
         ("cirrpki.service.url", "http://pki.services.blackberry.com/ptoe/ra/scep"),
         ("cirrpki.service.caName", "cirrus-rsa-ica-1"),
@@ -3017,7 +3020,6 @@ def main():
 
     {C.BOLD}1.{C.RESET} Core + UI  — full installation on this host (most common)
     {C.BOLD}2.{C.RESET} Core only  — database and Core on this host, UI elsewhere
-    {C.BOLD}3.{C.RESET} UI only    — Core already running, add UI to this host
 
   {C.BOLD}Database setup:{C.RESET}
 
@@ -3028,7 +3030,7 @@ def main():
         db_choice      = prompt("Database", default="N").strip().upper()
 
         cfg["deployment_type"] = {
-            "1": "core_and_ui", "2": "core_only", "3": "ui_only"
+            "1": "core_and_ui", "2": "core_only"
         }.get(install_choice, "core_and_ui")
         cfg["db_existing"] = db_choice in ("E", "EXISTING")
 
