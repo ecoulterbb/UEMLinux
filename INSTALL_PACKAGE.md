@@ -128,4 +128,6 @@ After wizard completes:
 |-----|----------|
 | `UEM_LINUX_INSTALLATION_GUIDE.md` | Operator guide for running the wizard |
 | `UEM_LAB_SETUP_GUIDE_v1.1.md` | Deep lab runbook (§12.8 scheduler, §20 EID) |
+| `DEPLOYMENT_TOPOLOGY_FLAGS.md` | Core+UI vs Core-only vs UI-only flags (`deployment.ui.only`, ports) |
+| `CONSOLE_FEATURES_AND_PROFILE_GAPS.md` | SMTP, Entra Conditional Access, Dynamics apps gaps |
 | `UEM_TARBALL_FAILURE_POINTS.md` | Product gaps the wizard compensates for |
