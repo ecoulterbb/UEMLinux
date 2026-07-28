@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+
+# Confluence/MCP publish temp artifacts (see docs/product-engineering/ for real drafts)
+docs/_*
+docs/__pycache__/

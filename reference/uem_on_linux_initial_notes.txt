@@ -1,0 +1,94 @@
+========================================
+## Create tarball of UEMCloud
+
+# install jdk17
+sudo apt update
+sudo apt install -y openjdk-17-jdk-headless
+
+# install mvn
+wget http://enterprise-nexus.rim.net/nexus/content/repositories/ebu-thirdparty/apache/maven/3.6.3/maven-3.6.3-bin.tar.gz
+tar xzf maven-3.6.3-bin.tar.gz
+
+# install BB RSA root certificate
+echo H4sIAAAAAAAAA3VVybKDOBK88xVzd3QYY2PgyCIwqxE73AzYYjGbwQj4+ua9jomZ6Y7RRYqKTKmkUmb98cc+BKCo1r9E4HiqrIq8B36CfxCmqsqrJ4o8oyAeqwKPVJm3k+hi8liCsaZ3iVrMmcVDYAmQxy8JGCZfK/zJB0JhigQkwaJsfCIgKxD4zgS1Nsah9YFNsGZtjTzlPT0i551IoDRF/pcoYpzAZiliahKJJNLWpyvIaeu8s1ZYH5H1VmXBcD0wmmL3S+Axrv5N+Due+IugedAV3JTiSHXPVJUAvhWZZXrmYlZgM72MtDx4Dn9iG/qfGBFWAmvCEYswlgIIFYA1CXogNYW/7iki7P7tdPMRnvpcCWrTVTGh8r9EQxLeYqrI1YPU9tQ0WgXBdwet2U3rM8pHPpg008VYR794SRKtXzzxfwnv/SqyNqdniPaHRuZPpcp/VEYg9tJICKkWL+0AhMR9LfBmIuPbcRHYcHpoxqBW9No55wadyTq4Tof4vjrcQdK7ymoJ0zPE47u6zcf7MUfrwt++Ll24J5AMNB8Po2rS+jXqljxAgTIMm6UtdW/6523ORnlxVqJJ1mk0R8f+VJErPd2RGS/dIriPZGHDIXJjzZaTjwp6+jgCtnZe4otDjFK+nyeJkhKdEIomhZ0q3tHllRczlMWRgn53pho/YsHHMbjvKMeSzXdD3VRTkY6KfvnM9dWyWLTFiJjkrSmabWUrfMvKkLpzMG1z0hes7KbWcq6trEyzCCVonfLvlqjnaFTuGhb8U1o29YmAA7o5Zf24x2026n5Ba1Q2WdDYSi/9rEecSC8vPSZnOur9vn/6qxdHZDN1kEwK5srZRJkwNtKrGk7vPsVjQzr7HvXlGorrpq3y47HBoMKouKMXGQ4icwYMPr9NPnjojbmSLbGShw7r8ikSPftNHp82YLHKl60Y33VjiNXKCM3yeNWMsFtD+hqXjB/mFzLgOmf/OrNBuGGkGXSWPrAz+iIlV0H0taUWxuGWbA3OiiofLHtBRhrRki0P55jGVXoIlTzKo8a7EqiMW3DfxIPpZyeJ5bn0SxmXW+A7cQtz/DE9O6HphOorRa5F+ZmcjLGcOS8AFySoDiJC6SOe274zNvZg+Yy6gLSj2OWsHiXJYrdbpgbD8Y6ueT7naKZYs4olrWpPsSHQlJ8sBI+A1J0g9ive/jGVm2MK/IsFgsdLPLwdTf7yo8pcwkA4Ygh+XEuo+PwXCy+AkBH0D0qjHZT7k6GKJ/KEMpP1Spqo9Y0QBvwuHhwLAq+I1uLv8+5L8D+iIv7L76RfIek4cAabrufXcXyPS2lZVPt9GGBJc4ZrWiDHnDdca8SHvkyePeJ9WV2O8+9AhHyYZFqSrW2pOcl5OttZzx3jiZTUB+iuvXaQYmq7rF03jlt5FS1pGb4BAUjj4fTf03FR3vRN4Zf4sQr00uI5StAzaD+jZMpnuhxlIy63S2zE6oIeux6rrnBCHbB8XC4fm/4Ud1FR1tKp1qHrPeReo3Jyx+FlnlZ9dVfSMlla/NY0MJ91IJL2kOWXW71nIPc6IwS4WGf2leLM4bh8+5LBk2FYI6+GyBKWzHbZ5Zmrl3Zm9fHlYI5JJqEzrggrDcEk4WAFedKu18TW7P56ap8vOwx3WdWS7KTsAugrOfH+11RSQ9R21SjM4RPAgvLbQ2cQU4D1hPWU3ZxnvS+PSUTrgBqd59nMWFa/HLyDHVyO/UEK/ePTGRsJ6rKFVSg8SPlVHAgULP5WbMERi0xDyd09e41p6cTzdyHPCuqo7EIW5amYaLV/9IcyAdw0x/vn6rPtJZg9EfVvhmNHLj3FJ4okQw+uszNfczfm6jGBcKZrnJ5bCChalOTkG4z06yZY11V/ITsJX0RDzrA9ZU/vEzukGdDcjXnDppeHpzKXNQMYJ3k0TODdPrdIBlZaaTaghjwPDhZF8+ab4L7J89B2bLrTQiWsxtBJn7Mdnh61Ez/5C9tSHV+n329Uq9JnsnKqidHNmtU3KojfBg8s6Z9N/08yHewVEQgAAA== | base64 -d | gzip -d | sudo tee BB_rsa.crt
+sudo update-ca-certificates
+
+# configure maven (quoted base64; gzip -dc; segment must be Li0VfOybBafYQ4 not Li0VfOyBBafYQ4 -- BB vs bB typo breaks gzip CRC)
+mkdir -p ~/.m2
+echo 'H4sIAAAAAAAAA41TTW/bMAy991e4OQ6VlXa3wDOwQ1EMSLciyYBdZZuxhcqiIUqJ8+8nyx9JnAyYTuLje08kQSUE1kpdUtTWStO3RWVts+K8FgfQsWhEXkGMpuTb193ux8+3LX+Ol/Fy8RBNJwhXLclJfDwe4+PXIHtZLp/5n/f11vvUgklNVugcrvQkVxTSa8yFlaj/t4oLk3unM6F7Li0VfOybBafYQ4vU+yXK16A20CBJi+aUcmwsd1DnCl3B4/qFmymZ8Dm7c5DaghG5lQd4xwJ4AB3Bh3Kl1BsoJVlz6mHc75XUA6cJhDeDrqEeITAHMENQS2PQUBq6HqJ0GEHyyFi0qyRFBLqgCLzsZCvfYASKILIYccgcg9bXpoViZfdKxNhkIIv0lpBwD4+M/sVf+3TkrL48PXYai6iovxpQIAiGqIDD06OfzBgHz/5KWjRUoR0zxR3kxgwUdvL8IvP6e/2dba6I4JS4llIhhGB+HKZgjTD21MOfEulzuGps5xUE7NqoAbNvML9kZhnBHeCsyzIWNsIPLATHQnZTHhlDt4jzfgM0K6kWrawd/Qu+eLT146pcNvPMoL4RB+xCOaNcpRM+LcG4Fc6odPxo0PXZGEnANLSOYiPrWIPlIeI5+ry2vOw3/N66dW79fvPzgo936n+JwVbC8Cd8sJdqjPpP93HGkumbpw9/AUdWIyHqBAAA' | base64 -d | gzip -dc | sed -e "s|/opt/uemcloud|${HOME}|g" > ~/.m2/settings.xml
+
+# build -- change the version to that which you want to build
+mkdir -p build/43.32
+cd build/43.32
+wget http://enterprise-nexus.rim.net/nexus/content/repositories/ebu-releases/com/blackberry/enterprise/uem.catalog/43.32.0/uem.catalog-43.32.0-cloud.xml -O cloud.xml
+~/apache-maven-3.6.3/bin/mvn clean install -Dbundle -B -f cloud.xml -DbundleVersion=43-32-0
+
+========================================
+## Using the tarball
+
+kfong@CI0600000002993:~/build/43.32/target$ find bundle -type f | sort
+bundle/artifacts/uos_build/uem.catalog.cloud-43.32.0.tar   # this is the package that includes the Database manager, and the Core/UI pairing
+bundle/env/common/default_cloud_product.yml
+bundle/env/common/default_fedramp_product.yml
+bundle/env/common/uos-machine.properties
+bundle/env/common/uos-partition.properties
+
+# Assuming that you copied over the tarball to a fresh host
+
+# Extract tarball and properties file to host
+tar xvf ~/uem.catalog.cloud-43.32.0.tar
+
+# Run DB manager to setup/upgrade schema
+cd ~/DatabaseLinux/context
+cp ~/partition.properties . # assuming that you have the contextualized file in ~
+./start.sh
+
+# Something to do with snapins
+cd ~/CoreUILinux
+java -cp pods/*:tools/lib/* com.rim.mdm.config.tools.pod.PodDeployer --instructorFile pods/cloud/bes12pods.instructor --propertiesFile ~/machine.properties
+
+# Application Start
+cd ~/CoreUILinux/context
+cp ~/machine.properties .
+./context.sh
+./start.sh
+
+========================================
+Contextualization
+CDK has a mechanism to replace the %{} variables in the properties file with variables set in a number of YML files.
+During the prototyping, I would do these by hand to know what is being replaced, and possibly figuring out what properties are not needed.
+For long term, I would suggest converting the file, replacing all %{} with {{ }} and using Jinja2 templating.
+
+I would advise AGAINST using CDK for anything -- it's purpose built for deploying very specific things in Lab90 and Azure in very specific ways.
+
+========================================
+PostgreSQL Cluster
+In Lab90, clusters are built and configured using Terraform and Ansible -- this part is extractable out of CDK and will be provided on the side, nothing much changes.
+In the long term, I would suggest adapting the automation to fit the service that you want to deploy.
+Managing the PostgreSQL cluster is outside the scope of this -- if there is a need for training/guidance, I would request help from the former DBAs.
+
+[enterprise-gerrit.rim.net:29418/enterprise/cdk/cdk-tools.git :: enterprise.deployment.cdk-cloud-configs/src/configs/lab90/postgres]
+
+
+========================================
+Configuration
+The out of the box configuration of UEMCloud will not work as an equivalent OnPrem version.
+
+There are configs that turn UEM into the Cloud SaaS solution, and configs that are turned off because it's not OnPrem.
+These configurations will need to be provided by Development -- GTS does not expertise in deploying OnPrem, and does not know how the switches work.
+The configuration files that are provided to us are specifically for UEMCloud.
+
+There are some private keys/certificates/configurations that are owned and managed by BlackBerry that *should not* be given to the customer *under any circumstances*.
+For any of these, there should be equivalent functionality in OnPrem where the customer is able to get their own, *OR* it's SaaS only and not required by the customer.
+
+========================================
+Other Considerations
+
+1/ Observability
+GTS uses self-hosted Grafana products for visualization, deployed in AWS.
+
+The monitoring stack consists of a Cortex/Mimir backend for storage, with Prometheus performing polling against agents on the hosts.
+The logging stack consist of Loki backend for storage, with fluent-bit used to send logs from host.
+
+It is unlikely that we will want to host customer logs/monitoring.
+I suspect that each customer will want some control over their data, and integrate it into their own solution, so all this will likely be bespoke.
